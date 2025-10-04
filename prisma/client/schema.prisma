@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./client"
+}
+
+datasource db {
+  provider = "postgresql" // or "mysql"/"sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  problems  Problem[]
+}
+
+model Problem {
+  id        Int       @id @default(autoincrement())
+  title     String
+  platform  String
+  solved    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  solvedAt  DateTime?
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+}

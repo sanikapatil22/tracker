@@ -1,45 +1,24 @@
-import { Prisma, PrismaClient } from "@/app/generated/prisma";
+import prisma from "../lib/prisma";
 
+async function main() {
+  const alice = await prisma.user.create({
+    data: { name: "Alice", email: "alice@example.com" },
+  });
 
-const prisma = new PrismaClient();
+  const bob = await prisma.user.create({
+    data: { name: "Bob", email: "bob@example.com" },
+  });
 
-const userData: Prisma.UserCreateInput[] = [
-  {
-    name: "Alice",
-    email: "alice@prisma.io",
-    posts: {
-      create: [
-        {
-          title: "Join the Prisma Discord",
-          content: "https://pris.ly/discord",
-          published: true,
-        },
-        {
-          title: "Prisma on YouTube",
-          content: "https://pris.ly/youtube",
-        },
-      ],
-    },
-  },
-  {
-    name: "Bob",
-    email: "bob@prisma.io",
-    posts: {
-      create: [
-        {
-          title: "Follow Prisma on Twitter",
-          content: "https://www.twitter.com/prisma",
-          published: true,
-        },
-      ],
-    },
-  },
-];
-
-export async function main() {
-  for (const u of userData) {
-    await prisma.user.create({ data: u });
-  }
+  await prisma.problem.createMany({
+    data: [
+      { title: "Two Sum", solved: true, platform: "LeetCode", userId: alice.id },
+      { title: "Add Two Numbers", solved: false, platform: "LeetCode", userId: alice.id },
+      { title: "Codeforces Problem A", solved: true, platform: "Codeforces", userId: bob.id },
+      { title: "Codeforces Problem B", solved: true, platform: "Codeforces", userId: bob.id },
+    ],
+  });
 }
 
-main();
+main()
+  .catch((e) => console.error(e))
+  .finally(() => prisma.$disconnect());
